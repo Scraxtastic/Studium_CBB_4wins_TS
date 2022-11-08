@@ -1,7 +1,7 @@
 # 4 wins server protocol
 
-url: <>/conPlayer
-e.g.: localhost:8123/conPlayer
+url: ws://solver4all.com:8123/conPlayer
+webview: http://solver4all.com:8124/
 
 ## LobbyEvent
 
