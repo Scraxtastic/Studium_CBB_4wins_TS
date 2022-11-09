@@ -6,25 +6,39 @@ import {
   IncomingEventStates,
   OutgoingEventState,
 } from "./models/Events";
+import { BotProfile, IBot } from "./Bots/IBot.types";
+import { createRandomBot } from "./Bots/RandoBot";
+import { createRandomBotThinks } from "./Bots/RandoBotThinks";
 dotenv.config();
 
 console.log("Started");
 let player = {
-  id: Math.floor(Math.random()*963248),
-  name: "MeBot",
+  id: Math.floor(Math.random() * 963248),
+  name: "",
 };
 let lobby = {
   LobbyName: "challenge-1",
   LobbyPassword: "ch1",
 };
-let gameState: number[][] = [];
+let gameState: number[][] = [
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0],
+];
 let gameServer: string = "";
+let botToActivate: BotProfile = 1;
+let activeBot: IBot;
+
+
 const con = CreateConnectionHandler({
   url: process.env.WS_URL + "",
 });
 
 const launch = () => {
-  con.send(OutgoingEventState.LOGIN_REQUEST, {PlayerUID: player.id+""});
+  con.send(OutgoingEventState.LOGIN_REQUEST, { PlayerUID: "_"+player.id });
 };
 
 con.on(IncomingEventStates.LOGIN_INFO, (ev: ILobbyEvent) => {
@@ -43,6 +57,16 @@ con.on(IncomingEventStates.LOBBY_START, (ev: ILobbyEvent) => {
 
 con.on(IncomingEventStates.GAME_START, (ev: ILobbyEvent) => {
   console.log("Game Started", ev);
+  switch (botToActivate) {
+    case BotProfile.Random:
+      activeBot = createRandomBot(player.name + player.id);
+      break;
+    case BotProfile.RandomThinks:
+      activeBot = createRandomBotThinks(player.name + player.id);
+      break;
+    default:
+      activeBot = createRandomBot(player.name + player.id);
+  }
 });
 
 con.on(IncomingEventStates.TURN_REQUEST, (ev: ILobbyEvent) => {
@@ -50,7 +74,7 @@ con.on(IncomingEventStates.TURN_REQUEST, (ev: ILobbyEvent) => {
   console.log("Turn Requested", ev);
   // Create new Play for every run (for the start);
 
-  con.sendTurn(gameServer, 0);
+  con.sendTurn(gameServer, activeBot.calcTurn(gameState));
 });
 
 con.on(IncomingEventStates.TURN_INFO, (ev: ILobbyEvent) => {
@@ -73,9 +97,8 @@ con.on(IncomingEventStates.LOBBY_END, (ev: ILobbyEvent) => {
   con.connection.close();
 });
 
-con.connection.on("open", ()=>{
+con.connection.on("open", () => {
   console.log("Connection Opened");
-  
-  launch();
 
-})
+  launch();
+});

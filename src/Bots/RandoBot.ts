@@ -8,7 +8,8 @@ export const createRandomBot = (name: string): IBot => {
 
     const bot: IBot = {
         name: "rando-" + name,
-        calcTurn
+        calcTurn,
+        counts: {}
     }
     return bot;
 }
