@@ -14,8 +14,8 @@ let player = {
   name: "MeBot",
 };
 let lobby = {
-  LobbyName: "challenge-2",
-  LobbyPassword: "ch2",
+  LobbyName: "challenge-1",
+  LobbyPassword: "ch1",
 };
 let gameState: number[][] = [];
 let gameServer: string = "";
