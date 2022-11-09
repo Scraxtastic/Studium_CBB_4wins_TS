@@ -19,9 +19,9 @@ export interface IConnectionHandler {
 export const CreateConnectionHandler = (props: IConnectionHandlerProps) => {
   const connection: WebSocket = new WebSocket(props.url);
   const events = {};
-  const on = (event: IncomingEventStates, method: Function) => {
+  const on = (event: IncomingEventStates, callback: Function) => {
     if (!events[event]) events[event] = [];
-    events[event].push(method);
+    events[event].push(callback);
   };
   connection.on("message", (data) => {
     const cmd: ILobbyEvent = JSON.parse(data.toString());
