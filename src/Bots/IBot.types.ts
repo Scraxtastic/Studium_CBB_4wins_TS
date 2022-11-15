@@ -2,10 +2,12 @@ export interface IBot {
   name: string;
   calcTurn: (gameState: number[][]) => number;
   counts: any;
+  player: number;
+  enemy: number;
 }
 
 export interface ISuggestion {
-  existing: IPoint[];
+  existing?: IPoint[];
   expected: IPoint;
   loss: boolean;
 }

@@ -17,8 +17,8 @@ let player = {
   name: "",
 };
 let lobby = {
-  LobbyName: "challenge-1",
-  LobbyPassword: "ch1",
+  LobbyName: process.env.LobbyName,
+  LobbyPassword: process.env.LobbyPassword || "",
 };
 let gameState: number[][] = [
   [0, 0, 0, 0, 0, 0, 0],
@@ -31,14 +31,15 @@ let gameState: number[][] = [
 let gameServer: string = "";
 let botToActivate: BotProfile = 1;
 let activeBot: IBot;
-
+let playerNumber = -1;
+let enemyNumber = -1;
 
 const con = CreateConnectionHandler({
   url: process.env.WS_URL + "",
 });
 
 const launch = () => {
-  con.send(OutgoingEventState.LOGIN_REQUEST, { PlayerUID: "_"+player.id });
+  con.send(OutgoingEventState.LOGIN_REQUEST, { PlayerUID: "_" + player.id });
 };
 
 con.on(IncomingEventStates.LOGIN_INFO, (ev: ILobbyEvent) => {
@@ -48,15 +49,6 @@ con.on(IncomingEventStates.LOGIN_INFO, (ev: ILobbyEvent) => {
 
 con.on(IncomingEventStates.LOBBY_JOIN_INFO, (ev: ILobbyEvent) => {
   console.log("Joined Lobby", ev);
-});
-
-con.on(IncomingEventStates.LOBBY_START, (ev: ILobbyEvent) => {
-  console.log("Lobby Started", ev);
-  gameServer = ev.Data.GameServer;
-});
-
-con.on(IncomingEventStates.GAME_START, (ev: ILobbyEvent) => {
-  console.log("Game Started", ev);
   switch (botToActivate) {
     case BotProfile.Random:
       activeBot = createRandomBot(player.name + player.id);
@@ -67,6 +59,22 @@ con.on(IncomingEventStates.GAME_START, (ev: ILobbyEvent) => {
     default:
       activeBot = createRandomBot(player.name + player.id);
   }
+  if (player.id == ev.Data.PlayerUID) {
+    playerNumber = ev.Data.PlayerPosition;
+    activeBot.player = playerNumber;
+  } else {
+    enemyNumber = ev.Data.PlayerPosition;
+    activeBot.enemy = enemyNumber;
+  }
+});
+
+con.on(IncomingEventStates.LOBBY_START, (ev: ILobbyEvent) => {
+  console.log("Lobby Started", ev);
+  gameServer = ev.Data.GameServer;
+});
+
+con.on(IncomingEventStates.GAME_START, (ev: ILobbyEvent) => {
+  console.log("Game Started", ev);
 });
 
 con.on(IncomingEventStates.TURN_REQUEST, (ev: ILobbyEvent) => {

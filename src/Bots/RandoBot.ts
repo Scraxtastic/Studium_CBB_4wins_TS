@@ -9,7 +9,9 @@ export const createRandomBot = (name: string): IBot => {
     const bot: IBot = {
         name: "rando-" + name,
         calcTurn,
-        counts: {}
+        counts: {},
+        player: -1,
+        enemy: -1,
     }
     return bot;
 }
